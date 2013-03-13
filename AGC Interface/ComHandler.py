@@ -8,7 +8,7 @@ import time
 
 import serial
 
-class ComHandler(threading.thread):
+class ComHandler(threading.Thread):
     '''
     A thread for reading and validating data from the COM port. The opening of the COM port is handled on thread start.
     

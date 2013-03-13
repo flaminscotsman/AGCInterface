@@ -7,29 +7,40 @@
 
 It defines classes_and_methods
 
-@author:     user_name
+@author:     Alasdair Scott
         
-@copyright:  2013 organization_name. All rights reserved.
+@copyright:  2013 Alasdair Scott. All rights reserved.
         
 @license:    license
 
-@contact:    user_email
-@deffield    updated: Updated
+@contact:    a.g.scott@warwick.ac.uk
+@deffield    updated: 24/02/2013
 '''
 
 import sys
 import os
+import numpy
+import pylab
+
+import wxversion
+wxversion.ensureMinimal('2.8')
+
+from Controllers.mainController import mainController
+
+
+import wx
 
 from argparse import ArgumentParser
 from argparse import RawDescriptionHelpFormatter
 from ComHandler import ComHandler
+from Views.mainPanel import mainPanel
 
 __all__ = []
 __version__ = 0.1
 __date__ = '2013-02-22'
 __updated__ = '2013-02-22'
 
-DEBUG = 1
+DEBUG = 0
 
 class CLIError(Exception):
     '''Generic exception to raise and log different fatal errors.'''
@@ -76,7 +87,7 @@ USAGE
         parser.add_argument('-r', "--baud-rate", dest='baudRate', type=int, choices=[110, 300, 600, 1200, 2400, 4800, 9600, 19200], default=9600, help='Sets baud rate for incoming signal')
         parser.add_argument('-p', '--parity', dest='parity', type=int, choices=[0, 1, 2], default=0, help='Sets number of parity bits for incoming signal [0-2]')
         parser.add_argument('-s', '--stop-bits', dest='stop', type=int, choices=[1,2], default=1, help='Sets number of stop bits for incoming signal [1-2]')
-        parser.add_argument(dest="port", dest='port', help="COM for for incoming serial data")
+        parser.add_argument(dest="port", help="COM for for incoming serial data")
         
         # Process arguments
         args = parser.parse_args()
@@ -93,8 +104,12 @@ USAGE
         
         dataQueue = None
         errorQueue = None #TODO: Implement queues
-        comHandler = ComHandler(dataQueue, errorQueue, port, baudRate, stopbits, parity)
+        #comHandler = ComHandler(dataQueue, errorQueue, port, baudRate, stopbits, parity)
         
+        application = wx.PySimpleApp()
+        application.frame = mainController().get_frame()
+        application.frame.Show()
+        application.MainLoop()
         return 0
     except KeyboardInterrupt:
         ### handle keyboard interrupt ###
@@ -109,7 +124,6 @@ USAGE
 
 if __name__ == "__main__":
     if DEBUG:
-        sys.argv.append("-h")
         sys.argv.append("-v")
-        sys.argv.append("-r")
+           
     sys.exit(main())
