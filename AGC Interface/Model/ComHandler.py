@@ -10,14 +10,8 @@ import serial
 
 class ComHandler(threading.Thread):
     '''
-    A thread for reading and validating data from the COM port. The opening of the COM port is handled on thread start.
-    
-    dataQueue:
-        A tuple containing the individual gauge queues. gaugeData objcets will then be placed on these to be picked up by the gui.
-    
-    errorQueue:
-        Passes serialerrors between ComHandler process and the main process.
-    
+    A thread for reading data from the COM port. The opening of the COM port is handled on thread start.
+        
     port:
         COM port for to listen on
         
@@ -32,10 +26,12 @@ class ComHandler(threading.Thread):
     '''
 
 
-    def __init__(self, dataQueue, errorQueue, port, baudRate, stopBits, parityBits):
+    def __init__(self, port, baudRate, stopBits, parityBits):
         '''
         Constructor
         '''
+        #Construction of serial port
+        
         if parityBits == 0:
             parityBits = serial.PARITY_NONE
         elif parityBits == 1:
@@ -56,17 +52,19 @@ class ComHandler(threading.Thread):
                                 parity=parityBits,
                                 timeout=0)
         
-        # Unpack Queues
-        self.gauge1, self.gauge2, self.gauge3, self.gauge4, self.gauge5, self.gauge6 = dataQueue
-        self.errorQueue = errorQueue
+        #Register Events
+        self.read = EventHook()
+        self.error = EventHook()
         
         self.alive = threading.Event()
         self.alive.set()
         
     def run(self):
         try:
+            # Dispose of old serial if exists
             if self.serial: 
                 self.serial.close()
+            # Open new serial interface
             self.serial = serial.Serial(**self.serialOptions)
         except serial.SerialException, e:
             self.errorQueue.put(e.message)
@@ -76,7 +74,14 @@ class ComHandler(threading.Thread):
         time.clock()
         
         while self.alive.isSet():
-            #TODO: reading of serial data  
+            text = self.serial.read(1)          # Read Character from serial eort
+            if text:                            # Check if character read
+                n = self.serial.inWaiting()     # Check if more to read
+                if n:
+                    text = text + self.serial.read(n) # Consume any further characters from serial port
+                while text.find("\r\n"):
+                    data, text = text.split("\r\n", 1) # Extract first data string
+                    self.read.fire()
             pass
         
         # clean up

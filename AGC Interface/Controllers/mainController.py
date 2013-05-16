@@ -9,7 +9,7 @@ import wx
 
 class mainController():
 
-    def __init__(self):
+    def __init__(self, app):
         self.view = mainPanel(self, 'title')
 
 #   View API
@@ -56,7 +56,6 @@ class mainController():
     
     def set_autoscaleY(self, autoscale):
         self.__set_autoscale('y', autoscale)
-
 
     def on_axis_settings(self, event):
         axisSettings = axisSettingsController(self, wx.ID_ANY)

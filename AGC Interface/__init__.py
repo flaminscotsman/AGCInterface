@@ -32,7 +32,6 @@ import wx
 
 from argparse import ArgumentParser
 from argparse import RawDescriptionHelpFormatter
-from ComHandler import ComHandler
 from Views.mainPanel import mainPanel
 
 __all__ = []
@@ -101,14 +100,8 @@ USAGE
         if verbose > 0:
             print("Verbose mode on")
         
-        
-        dataQueue = None
-        errorQueue = None #TODO: Implement queues
-        #comHandler = ComHandler(dataQueue, errorQueue, port, baudRate, stopbits, parity)
-        
-        application = wx.PySimpleApp()
-        application.frame = mainController().get_frame()
-        application.frame.Show()
+        application = wx.App(False)
+        controller = mainController(application)
         application.MainLoop()
         return 0
     except KeyboardInterrupt:
@@ -125,5 +118,5 @@ USAGE
 if __name__ == "__main__":
     if DEBUG:
         sys.argv.append("-v")
-           
+       
     sys.exit(main())
