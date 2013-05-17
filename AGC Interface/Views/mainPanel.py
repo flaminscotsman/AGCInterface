@@ -25,11 +25,13 @@ def EVT_RESULT(win, func):
 
 class serialRxEvent(wx.PyEvent):
     """"Simple event to carry arbitrary result data."""
-    def __init__(self, data):
+    def __init__(self, port, data, time):
         """Init Result Event."""
         wx.PyEvent.__init__(self)
         self.SetEventType(EVT_SERIAL_RX)
+        self.port = port
         self.data = data
+        self.time = time
 
 class newDataPointEvent(wx.PyEvent):
     """"Simple event to carry arbitrary result data."""

@@ -4,6 +4,8 @@ Created on 17 May 2013
 @author: Ali
 '''
 import re
+from datetime import datetime
+from Views.mainPanel import newDataPointEvent, instrumentChangeEvent
 
 DEBUG = 0
 
@@ -108,3 +110,19 @@ def errrorParser(target):
         else: #Catch malformed payloads
             print 'Error. Malformed payload found in co-routine chain'
             
+@coroutine
+def eventHandler():
+    def milliseconds():
+        return ((datetime.now.day*24*3600) + datetime.now().microsecond / 1000)
+    
+    try:
+        while True:
+            dataPacket = (yield)
+            if dataPacket[0] == 'data': #Pass on non error packets uneffected
+                newDataPointEvent(dataPacket[1], milliseconds(), dataPacket[4])
+            elif dataPacket[0] == 'error':
+                instrumentChangeEvent(*dataPacket[1:])
+            else: #Catch malformed payloads
+                print 'Error. Malformed payload found in co-routine chain'
+    except GeneratorExit:
+        
