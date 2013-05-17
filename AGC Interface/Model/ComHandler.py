@@ -56,6 +56,8 @@ class ComHandler(threading.Thread):
         self.read = EventHook()
         self.error = EventHook()
         
+        self.writeQueue = []
+        
         self.alive = threading.Event()
         self.alive.set()
         

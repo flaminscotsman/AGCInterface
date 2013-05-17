@@ -13,6 +13,46 @@ from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as Canvas
 from matplotlib.backends.backend_wxagg import NavigationToolbar2Wx as Toolbar
 from Controllers.axisSettingsController import axisSettingsController
 
+# Define notification event for thread completion
+EVT_SERIAL_RX = wx.NewId()
+EVT_SERIAL_TX = wx.NewId()
+EVT_NEW_DATAPOINT = wx.NewId()
+EVT_INSTRUMENT_STATUS = wx.NewId()
+
+def EVT_RESULT(win, func):
+    """Define Result Event."""
+    win.Connect(-1, -1, EVT_SERIAL_RX, func)
+
+class serialRxEvent(wx.PyEvent):
+    """"Simple event to carry arbitrary result data."""
+    def __init__(self, data):
+        """Init Result Event."""
+        wx.PyEvent.__init__(self)
+        self.SetEventType(EVT_SERIAL_RX)
+        self.data = data
+
+class newDataPointEvent(wx.PyEvent):
+    """"Simple event to carry arbitrary result data."""
+    def __init__(self, channel, time, pressure):
+        """Init Result Event."""
+        wx.PyEvent.__init__(self)
+        self.SetEventType(EVT_SERIAL_RX)
+        self.channel = channel
+        self.time = time
+        self.pressure = pressure
+
+class instrumentChangeEvent(wx.PyEvent):
+    """"Simple event to carry arbitrary result data."""
+    def __init__(self, channel, instrumentCode, instrumentName, errorCode, errorString):
+        """Init Result Event."""
+        wx.PyEvent.__init__(self)
+        self.SetEventType(EVT_SERIAL_RX)
+        self.channel = channel
+        self.instrumentCode = instrumentCode
+        self.instrumentName = instrumentName
+        self.errorCode = errorCode
+        self.errorString = errorString
+
 class mainPanel(wx.Frame):
     '''
     classdocs
@@ -76,12 +116,12 @@ class mainPanel(wx.Frame):
     def menuData(self):
         '''Returns menu structure as nested tuples. Length two tuples are menu levels, length 4 are menu items'''
         return (
-            ("File",
+            ("&File",
                 ((wx.ID_SAVE, "&Save data\tCtrl+S", "Save data to CSV format", self.onSaveCSV),
-                ("", "&Save plot\tCtrl+Shift+S", "Save plot to file", self.onSavePlot),
+                ("", "Save plot\tCtrl+Shift+S", "Save plot to file", self.onSavePlot),
                 ("", "", "", ""),
                 ("", "Exit\tCtrl+X", "Exit", self.onExit)
-            )), ("View",
+            )), ("&View",
                 (("", "Axis Settings", "Opens Axis Settings Window", self.onAxisSettings))
             ))
     
