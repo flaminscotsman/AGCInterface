@@ -125,4 +125,4 @@ def eventHandler():
             else: #Catch malformed payloads
                 print 'Error. Malformed payload found in co-routine chain'
     except GeneratorExit:
-        
+        pass
